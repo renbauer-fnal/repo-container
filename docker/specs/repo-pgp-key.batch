@@ -1,0 +1,9 @@
+%echo Generating a repo PGP key
+Key-Type: RSA
+Key-Length: 4096
+Name-Real: my-repo-key
+Name-Email: user@mydomain.com
+Expire-Date: 0
+%no-ask-passphrase
+%no-protection
+%commit
