@@ -1,5 +1,5 @@
 [example-repo]
-name=Example Repo
+name=Easy Repo
 baseurl=http://127.0.0.1:8000/packages
 enabled=1
 gpgcheck=1
