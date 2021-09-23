@@ -1,30 +1,30 @@
 FROM centos:8
 
+RUN cat /etc/resolv.conf
+
+RUN yum install -y createrepo rpm-build rpm-sign python3
+
 WORKDIR /root/repo
 
 ADD packages packages
 ADD specs specs
 
-RUN yum install -y createrepo rpm-build rpm-sign python3
+RUN mkdir -m600 keys
 
-RUN mkdir keys
-
-ENV GNUPGHOME="$(mktemp -d keys/pgpkeys-XXXXXX)"
+ENV GNUPGHOME="keys"
 
 RUN gpg --no-tty --batch --gen-key specs/repo-pgp-key.batch
 
 RUN gpg --armor --export my-repo-key > pgp-key.public
 
-RUN rpm --addsign packages/*.rpm
+# RUN gpg --armor --export-secret-keys my-repo-key | gpg --import
 
-RUN pushd packages
+RUN rpm --define "_gpg_name my-repo-key" --addsign packages/*.rpm
 
-RUN yum install -y createrepo
+RUN createrepo packages
 
-RUN createrepo .
+RUN gpg --detach-sign --armor packages/repodata/repomd.xml
 
-RUN gpg --detach-sign --armor repodata/repomd.xml
+EXPOSE 8000
 
-RUN popd
-
-ENTRYPOINT python3 -m http.server
+CMD python3 -m http.server  8000
